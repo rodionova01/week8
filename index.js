@@ -1,19 +1,22 @@
-const exspress = require('express')
-const bodyParser = require('body-parser')
-const app = exspress()
-app.use(bodyParser.urlencoded())
-
+const express = require('express')
+const {pool} = require('./pgConfig')
 const port = process.env.PORT || 8080
+const app = express()
 
 app.get('/', (req, res) =>
 {
-    res.render('index.ejs')
+    const sql1 = `select * from задания;`
+
+    pool.query(sql1, (err, resp) =>
+    {
+        if(err)
+            console.log('Error:', err)
+        else
+        {
+            res.render('problemset.ejs', {rows: resp.rows})
+        }
+    })
+
 })
 
-app.post('/', (req, res) =>
-{
-    const username = req.body.username
-    res.render('hello.ejs', {username: username})
-}
-)
-app.listen(port, ()=> console.log(`listen port:${port}`))
+app.listen(port, ()=> console.log('Приложение слушает порт:', port))
